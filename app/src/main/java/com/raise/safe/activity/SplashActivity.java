@@ -1,10 +1,14 @@
 package com.raise.safe.activity;
 
 import android.app.Activity;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
+
+import com.raise.safe.info.AppInfo;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
@@ -13,6 +17,8 @@ import java.net.URL;
 import java.net.URLConnection;
 
 public class SplashActivity extends Activity {
+
+    private AppInfo m_appinfo = AppInfo.getInstance();
 
     Handler m_handler = new Handler(new Handler.Callback() {
         @Override
@@ -26,6 +32,7 @@ public class SplashActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        initPackageInfo();
         checkVersion();
     }
 
@@ -50,5 +57,19 @@ public class SplashActivity extends Activity {
                 msg.sendToTarget();
             }
         }).start();
+    }
+
+    private void initPackageInfo() {
+        PackageManager pm = getPackageManager();
+        PackageInfo packageInfo = null;
+        try {
+            packageInfo = pm.getPackageInfo(getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        if (packageInfo != null) {
+            m_appinfo.versionCode = String.valueOf(packageInfo.versionCode);
+            m_appinfo.versionName = packageInfo.versionName;
+        }
     }
 }
